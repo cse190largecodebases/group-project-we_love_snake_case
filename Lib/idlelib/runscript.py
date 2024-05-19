@@ -13,6 +13,7 @@ import os
 import tabnanny
 import time
 import tokenize
+import tempfile
 
 from tkinter import messagebox
 
@@ -125,7 +126,15 @@ class ScriptBinding:
             return 'break'
         filename = self.getfilename()
         if not filename:
-            return 'break'
+            """
+            If there is no filename, then save the contents of the 
+            file in a temporary file in a temporary folder 
+            This file will be overwritten each time the user runs the code.
+            """
+            with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+                f.write(self.editwin.text.get('1.0', 'end'))
+                filename = f.name
+            #filename = os.path.join(idleConf.GetUserCfgDir(), 'temp.py')
         code = self.checksyntax(filename)
         if not code:
             return 'break'
@@ -194,12 +203,12 @@ class ScriptBinding:
         return filename
 
     def ask_save_dialog(self):
-        msg = "Source Must Be Saved\n" + 5*' ' + "OK to Save?"
-        confirm = messagebox.askokcancel(title="Save Before Run or Check",
+        msg = "Do you want to run without saving?\n" #+ 5*' ' + "OK to Save?"
+        confirm = messagebox.askyesno("Save Before Run or Check",
                                            message=msg,
-                                           default=messagebox.OK,
+                                           default="no",
                                            parent=self.editwin.text)
-        return confirm
+        return not confirm
 
     def errorbox(self, title, message):
         # XXX This should really be a function of EditorWindow...
