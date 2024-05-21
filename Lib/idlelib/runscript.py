@@ -125,7 +125,9 @@ class ScriptBinding:
             self.editwin.text.bell()
             return 'break'
         filename = self.getfilename()
-        if not filename:
+        # if not filename:
+        if filename == 'write_to_temp_file':
+
             """
             If there is no filename, then save the contents of the 
             file in a temporary file in a temporary folder 
@@ -199,7 +201,7 @@ class ScriptBinding:
                     self.editwin.io.save(None)
                     filename = self.editwin.io.filename
                 else:
-                    filename = None
+                    filename = 'write_to_temp_file'
         return filename
 
     def ask_save_dialog(self):
