@@ -68,7 +68,6 @@ class EditorWindow:
     help_url = None
 
     allow_code_context = True
-    allow_code_stash = True # for the Stash extension
     allow_line_numbers = True
     user_input_insert_tags = None
 
@@ -355,12 +354,10 @@ class EditorWindow:
             self.update_menu_state('options', '*ode*ontext', 'disabled')
         if self.allow_line_numbers:
             self.line_numbers = self.LineNumbers(self)
-            self.stash_code = Stash(self)
             if idleConf.GetOption('main', 'EditorWindow',
                                   'line-numbers-default', type='bool'):
                 self.toggle_line_numbers_event()
             text.bind("<<toggle-line-numbers>>", self.toggle_line_numbers_event)
-            # text.bind("<<toggle-code-stash>>", self.stash_code.toggle_code_stash_event)
         else:
             self.update_menu_state('options', '*ine*umbers', 'disabled')
 
