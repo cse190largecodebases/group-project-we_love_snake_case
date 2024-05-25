@@ -29,6 +29,7 @@ from idlelib import search
 from idlelib.tree import wheel_event
 from idlelib.util import py_extensions
 from idlelib import window
+from idlelib.stashcode import Stash
 
 # The default tab setting for a Text widget, in average-width characters.
 TK_TABWIDTH_DEFAULT = 8
@@ -67,6 +68,7 @@ class EditorWindow:
     help_url = None
 
     allow_code_context = True
+    allow_code_stash = True # for the Stash extension
     allow_line_numbers = True
     user_input_insert_tags = None
 
@@ -353,12 +355,15 @@ class EditorWindow:
             self.update_menu_state('options', '*ode*ontext', 'disabled')
         if self.allow_line_numbers:
             self.line_numbers = self.LineNumbers(self)
+            self.stash_code = Stash(self)
             if idleConf.GetOption('main', 'EditorWindow',
                                   'line-numbers-default', type='bool'):
                 self.toggle_line_numbers_event()
             text.bind("<<toggle-line-numbers>>", self.toggle_line_numbers_event)
+            # text.bind("<<toggle-code-stash>>", self.stash_code.toggle_code_stash_event)
         else:
             self.update_menu_state('options', '*ine*umbers', 'disabled')
+
 
     def handle_winconfig(self, event=None):
         self.set_width()
@@ -457,6 +462,7 @@ class EditorWindow:
 
 
     def createmenubar(self):
+
         mbar = self.menubar
         self.menudict = menudict = {}
         for name, label in self.menu_specs:
@@ -470,13 +476,26 @@ class EditorWindow:
             menudict['application'] = menu = Menu(mbar, name='apple',
                                                   tearoff=0)
             mbar.add_cascade(label='IDLE', menu=menu)
-        self.fill_menus()
+        self.fill_menus()   
+        # add stash code main menu button and submenu
+        self.stash_menu = Menu(self.menubar, tearoff=0)
+        self.stash_menu.add_command(label="Previous Stash", command=lambda: Stash.previous_stash(self))
+        self.stash_menu.add_command(label="Next Stash", command=lambda: Stash.next_stash(self))
+        self.stash_menu.add_command(label="Apply Stash", command=lambda: Stash.apply_stash(self))
+
+        self.menudict['options'].add_cascade(label='Stash', menu=self.stash_menu)
+        if self.allow_line_numbers:
+            pass
+        else:
+            self.update_menu_state('options', 'Stash', 'disabled')
         self.recent_files_menu = Menu(self.menubar, tearoff=0)
         self.menudict['file'].insert_cascade(3, label='Recent Files',
                                              underline=0,
                                              menu=self.recent_files_menu)
         self.base_helpmenu_length = self.menudict['help'].index(END)
         self.reset_help_menu_entries()
+
+        
 
     def postwindowsmenu(self):
         # Only called when Window menu exists
