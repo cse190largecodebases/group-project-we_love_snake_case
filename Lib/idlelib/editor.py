@@ -476,6 +476,7 @@ class EditorWindow:
         self.fill_menus()   
         # add stash code main menu button and submenu
         self.stash_menu = Menu(self.menubar, tearoff=0)
+        self.stash_menu.add_command(label="Stash Code", command=lambda: Stash.stash_code(self))
         self.stash_menu.add_command(label="Previous Stash", command=lambda: Stash.previous_stash(self))
         self.stash_menu.add_command(label="Next Stash", command=lambda: Stash.next_stash(self))
         self.stash_menu.add_command(label="Apply Stash", command=lambda: Stash.apply_stash(self))

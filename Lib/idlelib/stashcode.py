@@ -47,6 +47,10 @@ class Stash:
     def apply_stash(self):
         print('apply stash')
 
+    @staticmethod
+    def stash_code(self):
+        print('stash code')
+
 
 
 if __name__ == "__main__":
