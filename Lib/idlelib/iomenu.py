@@ -244,7 +244,6 @@ class IOBinding:
                 f.write(chars)
                 f.flush()
                 os.fsync(f.fileno())
-                f.write('\n done')
             return True
         except OSError as msg:
             messagebox.showerror("I/O Error", str(msg),
