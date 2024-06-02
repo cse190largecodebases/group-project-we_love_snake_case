@@ -281,6 +281,7 @@ class EditorWindow:
         self.color = None # initialized below in self.ResetColorizer
         self.code_context = None # optionally initialized later below
         self.line_numbers = None # optionally initialized later below
+        self.stash_menu = None
         if filename:
             if os.path.exists(filename) and not os.path.isdir(filename):
                 if io.loadfile(filename):
@@ -354,6 +355,7 @@ class EditorWindow:
             self.update_menu_state('options', '*ode*ontext', 'disabled')
         if self.allow_line_numbers:
             self.line_numbers = self.LineNumbers(self)
+            self.stash_code = Stash(self)
             if idleConf.GetOption('main', 'EditorWindow',
                                   'line-numbers-default', type='bool'):
                 self.toggle_line_numbers_event()
@@ -476,10 +478,10 @@ class EditorWindow:
         self.fill_menus()   
         # add stash code main menu button and submenu
         self.stash_menu = Menu(self.menubar, tearoff=0)
-        self.stash_menu.add_command(label="Stash Code", command=lambda: Stash.stash_code(self))
-        self.stash_menu.add_command(label="Previous Stash", command=lambda: Stash.previous_stash(self))
-        self.stash_menu.add_command(label="Next Stash", command=lambda: Stash.next_stash(self))
-        self.stash_menu.add_command(label="Apply Stash", command=lambda: Stash.apply_stash(self))
+        self.stash_menu.add_command(label="Stash Code", command=lambda: self.stash_code.stash_code())
+        self.stash_menu.add_command(label="Previous Stash", command=lambda: self.stash_code.previous_stash())
+        self.stash_menu.add_command(label="Next Stash", command=lambda: self.stash_code.next_stash())
+        self.stash_menu.add_command(label="Apply Stash", command=lambda: self.stash_code.apply_stash())
 
         self.menudict['options'].add_cascade(label='Stash', menu=self.stash_menu)
         if self.allow_line_numbers:
