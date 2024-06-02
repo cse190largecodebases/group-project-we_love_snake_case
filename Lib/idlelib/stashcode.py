@@ -1,12 +1,12 @@
 # """stash - local version control for IDLE"""
-# import collections 
+# import collections
 
 
 # class Stash:
 #     "Display code outline in new or existing Pyshell."
 
 #     def __init__(self, editwin):
-#         """File for stashing code 
+#         """File for stashing code
 #         editwin is the Editor window for the context block.
 #         self.text is the editor window text widget.
 #         self.get_region --> gets the region of the highlighted code, or gets the entire code if nothing is highlgighted; inspired from get_region in format.py
@@ -30,15 +30,15 @@
 #         chars = text.get(head, tail)
 #         lines = chars.split("\n")
 #         return head, tail, chars, lines
-    
+
 #     @staticmethod
-#     def toggle_code_stash_event(self, event=None):  
+#     def toggle_code_stash_event(self, event=None):
 #         print('stashed')
 
 #     @staticmethod
 #     def previous_stash(self):
 #         print('previous stash')
-    
+
 #     @staticmethod
 #     def next_stash(self):
 #         print('next stash')
@@ -58,17 +58,53 @@
 #     main('idlelib.idle_test.test_codecontext', verbosity=2, exit=False)
 
 """stash - local version control for IDLE"""
-import collections 
+import collections
 import difflib
 import hashlib
-from idlelib.runscript import ScriptBinding
+import os
+
+def create_hidden_file(folder_name, file_name):
+    hidden_folder = '.' + folder_name
+    file_path = os.path.join(hidden_folder, file_name)
+
+    # Create the hidden folder if it doesn't exist
+    os.makedirs(hidden_folder, exist_ok=True)
+
+    # Check if the file exists in the hidden folder
+    if not os.path.isfile(file_path):
+        # Create the file if it doesn't exist
+        with open(file_path, 'w') as f:
+            pass
+
+        print(f"Created file: {file_path}")
+    else:
+        print(f"File already exists: {file_path}")
+
+    return file_path
+
+def read_file_contents(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            contents = file.read()
+        return contents
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None
+
+def write_to_file(file_path, content):
+    try:
+        with open(file_path, 'w') as file:
+            file.write(content)
+        print(f"Content written to {file_path}")
+    except Exception as e:
+        print(f"Error writing to file: {e}")
 
 
 class Stash:
     "Display code outline in new or existing Pyshell."
 
     def __init__(self, editwin):
-        """File for stashing code 
+        """File for stashing code
         editwin is the Editor window for the context block.
         self.text is the editor window text widget.
         self.get_region --> gets the region of the highlighted code, or gets the entire code if nothing is highlgighted; inspired from get_region in format.py
@@ -77,15 +113,24 @@ class Stash:
         self.apply_stash --> applies the stash to the current code region
         self.toggle_code_stash_event --> event handler for the toggle_code_stash_event
         """
-        self.script = ScriptBinding(editwin)
-        self.filename = self.script.getfilename()
-        print(self.filename)
+        # self.script = ScriptBinding(editwin)
+        # self.filename = self.script.getfilename()
+        # print(self.filename)
+
         self.editwin = editwin
         self.text = editwin.text
-        # self.file_path = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
+
+        # Handles hidden stash file creation
+        self.file_hash = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
+        self.file_path = create_hidden_file("idlelibstash", self.file_hash + ".txt")
+
         self.stashes = collections.deque(maxlen=10)  # keep last 10 stashes
 
-    
+        # read the contents of the stash file
+        contents = read_file_contents(self.file_path)
+        if not contents:
+            print(f"File contents: {contents}")
+
     def get_region(self):
         text = self.text
         first, last = self.editwin.get_selection_indices()
@@ -98,13 +143,13 @@ class Stash:
         chars = text.get(head, tail)
         lines = chars.split("\n")
         return head, tail, chars, lines
-    
-    def toggle_code_stash_event(self, event=None):  
+
+    def toggle_code_stash_event(self, event=None):
         print('stashed')
 
     def previous_stash(self):
         print('previous stash')
-    
+
     def next_stash(self):
         print('next stash')
 
