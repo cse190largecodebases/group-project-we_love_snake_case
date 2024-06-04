@@ -62,9 +62,8 @@ class Stash:
         self.text is the editor window text widget.
         self.get_region --> gets the region of the highlighted code, or gets the entire code if nothing is highlgighted; inspired from get_region in format.py
         self.previous_stash --> presents the previously saved stash
-        self.previous_stash --> presents the next saved stash
+        self.next_stash --> presents the next saved stash
         self.apply_stash --> applies the stash to the current code region
-        self.toggle_code_stash_event --> event handler for the toggle_code_stash_event
         """
 
         self.editwin = editwin
@@ -94,10 +93,6 @@ class Stash:
         chars = text.get(head, tail)
         lines = chars.split("\n")
         return head, tail, chars, lines
-
-    def toggle_code_stash_event(self, event=None):
-        print('stashed')
-
     def previous_stash(self):
         print('previous stash')
 
