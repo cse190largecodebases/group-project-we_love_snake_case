@@ -104,7 +104,12 @@ class Stash:
         if not self.stashes:
             print('No stashes to apply')
             return
-        recent_stash = ast.literal_eval(self.stashes[-1])
+        
+        if isinstance(self.stashes[-1], str):
+            recent_stash = ast.literal_eval(self.stashes[-1])
+        else:
+            recent_stash = self.stashes[-1]
+        print('recent',recent_stash)
         self.text.delete('1.0', 'end')
         counter = 1.0
         for line in recent_stash:  # Iterate over the list inside the list
