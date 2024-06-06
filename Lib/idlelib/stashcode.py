@@ -3,6 +3,7 @@ import collections
 import difflib
 import hashlib
 import os
+import ast
 
 def create_hidden_file(folder_name, file_name):
     hidden_folder = '.' + folder_name
@@ -103,22 +104,21 @@ class Stash:
         if not self.stashes:
             print('No stashes to apply')
             return
-        stash = self.stashes[-1]
-        head, tail, chars, lines = self.get_region()
-        diff = difflib.unified_diff(lines, stash)
-        diff_text = '\n'.join(diff)
-        self.text.delete(head, tail)
-        self.text.insert(head, diff_text)
+        recent_stash = ast.literal_eval(self.stashes[-1])
+        self.text.delete('1.0', 'end')
+        counter = 1.0
+        for line in recent_stash:  # Iterate over the list inside the list
+            if line:  # Skip empty lines
+                self.text.insert(f'{counter}', line + '\n')
+                counter += 1.0
         print('Applied stash')
 
     def stash_code(self):
-        stashes_deque = collections.deque()
         head, tail, chars, lines = self.get_region()
         if self.stashes and self.stashes[-1] == lines:
             print('No changes to stash')
             return
-        stashes_deque.append(lines)
-        self.stashes.append(stashes_deque)
+        self.stashes.append(lines)
         write_stash_to_file(self.file_path, self.stashes)
         print('self.stashes:', self.stashes)
         print('Stashed code')
