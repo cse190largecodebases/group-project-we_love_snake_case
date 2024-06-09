@@ -69,19 +69,24 @@ class Stash:
 
         self.editwin = editwin
         self.text = editwin.text
-
         # Handles hidden stash file creation
         self.file_hash = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
         self.file_path = create_hidden_file("idlelibstash", self.file_hash + ".txt")
-
+        self.original_content = self.text.get('1.0', 'end')
         self.stashes = read_stash_from_file(self.file_path)  # keep last 10 stashes
-        print(self.stashes)
-
-        # read the contents of the stash file
+        if self.stashes:
+            self.index = len(self.stashes) - 1  # Initialize index to the last stash
+        else:
+            self.index = 0
         contents = read_file_contents(self.file_path)
         if not contents:
             print(f"File contents: {contents}")
 
+    def restore_original(self):
+        self.text.delete('1.0', 'end')
+        self.text.insert('1.0', self.original_content)
+        print('Restored original code')
+    
     def get_region(self):
         text = self.text
         first, last = self.editwin.get_selection_indices()
@@ -94,29 +99,44 @@ class Stash:
         chars = text.get(head, tail)
         lines = chars.split("\n")
         return head, tail, chars, lines
+    
     def previous_stash(self):
-        print('previous stash')
+        if not self.stashes or self.index <= 0:
+            print('No previous stash')
+            return
+        self.index -= 1  # Move to the previous stash
+        previous_stash = self.stashes[self.index]
+        self.update_editor_window(previous_stash)
 
     def next_stash(self):
-        print('next stash')
+        if not self.stashes or self.index >= len(self.stashes) - 1:
+            print('No next stash')
+            return
+        self.index += 1  # Move to the previous stash
+        next_stash = self.stashes[self.index]
+        self.update_editor_window(next_stash)
 
     def apply_stash(self):
         if not self.stashes:
             print('No stashes to apply')
             return
-        
-        if isinstance(self.stashes[-1], str):
-            recent_stash = ast.literal_eval(self.stashes[-1])
-        else:
-            recent_stash = self.stashes[-1]
-        print('recent',recent_stash)
+        self.update_editor_window(self.stashes[self.index])
+        print('Applied stash')
+
+    def update_editor_window(self, stash):
+        recent_stash = self.convert_from_string(stash)
         self.text.delete('1.0', 'end')
         counter = 1.0
-        for line in recent_stash:  # Iterate over the list inside the list
-            if line:  # Skip empty lines
-                self.text.insert(f'{counter}', line + '\n')
-                counter += 1.0
-        print('Applied stash')
+        for line in recent_stash:
+            self.text.insert(f'{counter}', line + '\n')
+            counter += 1.0
+    
+    def convert_from_string(self, stash):
+        print('actual stash',stash)
+        if isinstance(stash, str):
+            return ast.literal_eval(stash)
+        else:
+            return stash
 
     def stash_code(self):
         head, tail, chars, lines = self.get_region()
@@ -127,7 +147,6 @@ class Stash:
         write_stash_to_file(self.file_path, self.stashes)
         print('self.stashes:', self.stashes)
         print('Stashed code')
-
 
 
 if __name__ == "__main__":
