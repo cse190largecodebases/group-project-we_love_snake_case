@@ -58,7 +58,7 @@ class StashCodeTest(unittest.TestCase):
         stash = stashcode.Stash(ew)
         stash.stash_code()
         stash.apply_stash()
-        self.assertEqual(stash.stashes[stash.index], "['', '']")
+        self.assertEqual(stash.stashes[stash.index], ['', ''])
 
     def test_next_stash(self):
         ew = self.editor
@@ -66,12 +66,12 @@ class StashCodeTest(unittest.TestCase):
         stash.index = 0
         stash.stash_code()
         stash.next_stash()
-        self.assertEqual(stash.index, 1)
+        self.assertEqual(stash.index, 2)
 
     def test_previous_stash(self):
         ew = self.editor
         stash = stashcode.Stash(ew)
-        stash.index = 1
+        stash.index = 0
         stash.stash_code()
         stash.previous_stash()
         self.assertEqual(stash.index, 0)
@@ -81,7 +81,7 @@ class StashCodeTest(unittest.TestCase):
         stash = stashcode.Stash(ew)
         stash.stash_code()
         stash.restore_original()
-        self.assertEqual(stash.stashes[stash.index], "['', '']")
+        self.assertEqual(stash.stashes[stash.index], ['', ''])
 
     def test_create_hidden_file(self):
         stashcode.create_hidden_file('test_folder', 'test_file')
