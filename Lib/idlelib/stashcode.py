@@ -5,6 +5,8 @@ import hashlib
 import os
 import ast
 
+from tkinter import messagebox
+
 def create_hidden_file(folder_name, file_name):
     hidden_folder = '.' + folder_name
     file_path = os.path.join(hidden_folder, file_name)
@@ -88,7 +90,7 @@ class Stash:
         self.text.delete('1.0', 'end')
         self.text.insert('1.0', self.original_content)
         print('Restored original code')
-    
+
     def get_region(self):
         text = self.text
         first, last = self.editwin.get_selection_indices()
@@ -101,10 +103,11 @@ class Stash:
         chars = text.get(head, tail)
         lines = chars.split("\n")
         return head, tail, chars, lines
-    
+
     def previous_stash(self):
         if not self.stashes or self.index <= 0:
             print('No previous stash')
+            messagebox.showinfo("Message", "No previous stash")
             return
         self.index -= 1  # Move to the previous stash
         previous_stash = self.stashes[self.index]
@@ -113,6 +116,7 @@ class Stash:
     def next_stash(self):
         if not self.stashes or self.index >= len(self.stashes) - 1:
             print('No next stash')
+            messagebox.showinfo("Message", "No next stash")
             return
         self.index += 1  # Move to the next stash
         next_stash = self.stashes[self.index]
@@ -121,6 +125,7 @@ class Stash:
     def apply_stash(self):
         if not self.stashes:
             print('No stashes to apply')
+            messagebox.showinfo("Message", "No stashes to apply")
             return
         self.update_editor_window(self.stashes[-1])
         print('Applied stash')
@@ -132,7 +137,7 @@ class Stash:
         for line in recent_stash:
             self.text.insert(f'{counter}', line + '\n')
             counter += 1.0
-    
+
     def convert_from_string(self, stash):
         print('actual stash',stash)
         if isinstance(stash, str):
@@ -141,16 +146,18 @@ class Stash:
             return stash
 
     def stash_code(self):
-        self.index += 1
         print('self.index:', self.index)
         head, tail, chars, lines = self.get_region()
         if self.stashes and self.stashes[-1] == lines:
             print('No changes to stash')
+            messagebox.showinfo("Message", "No changes to stash")
             return
         self.stashes.append(lines)
         write_stash_to_file(self.file_path, self.stashes)
-        print('self.stashes:', self.stashes)
-        print('Stashed code')
+        self.index = len(self.stashes) - 1
+
+        # print('self.stashes:', self.stashes)
+        # print('self.index', self.index, '\n', 'self.stashes length', len(self.stashes))
 
 
 if __name__ == "__main__":
