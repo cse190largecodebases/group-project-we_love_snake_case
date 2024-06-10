@@ -481,6 +481,7 @@ class EditorWindow:
         self.stash_menu.add_command(label="Stash Code", command=lambda: self.stash_code.stash_code())
         self.stash_menu.add_command(label="Previous Stash", command=lambda: self.stash_code.previous_stash())
         self.stash_menu.add_command(label="Next Stash", command=lambda: self.stash_code.next_stash())
+        self.stash_menu.add_command(label="Restore Original", command=lambda: self.stash_code.restore_original())
         self.stash_menu.add_command(label="Apply Stash", command=lambda: self.stash_code.apply_stash())
 
         self.menudict['options'].add_cascade(label='Stash', menu=self.stash_menu)
