@@ -28,6 +28,33 @@ class ScriptBindingTest(unittest.TestCase):
         sb = runscript.ScriptBinding(ew)
         ew._close()
 
+    # Mock test with user saying Yes to running without saving, so confirm is 0
+    def test_getfilename_run_with_saving(self):
+        ew = EditorWindow(root=self.root)
+        sb = runscript.ScriptBinding(ew)
+        ew.io.get_saved = unittest.mock.MagicMock(return_value=True)
+        sb.ask_save_dialog = unittest.mock.MagicMock(return_value=False)
+        sb.user_confirm = unittest.mock.MagicMock(return_value='custom_file')
+        self.assertEqual('custom_file', sb.user_confirm())
+        ew._close()
+
+    def test_getfilename_run_without_saving(self):
+        ew = EditorWindow(root=self.root)
+        sb = runscript.ScriptBinding(ew)
+        ew.io.get_saved = unittest.mock.MagicMock(return_value=False)
+        sb.ask_save_dialog = unittest.mock.MagicMock(return_value=True)
+        filename = sb.user_cancel()
+        self.assertEqual(filename, 'write_to_temp_file')
+        ew._close()
+
+    def test_write_to_temp_file(self):
+        ew = EditorWindow(root=self.root)
+        sb = runscript.ScriptBinding(ew)
+        ew.text.insert('1.0', 'print("Hello World")')
+        filename = sb.write_to_temp_file()
+        with open(filename, 'r') as f:
+            self.assertEqual(f.read(), 'print("Hello World")\n')
+        ew._close()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

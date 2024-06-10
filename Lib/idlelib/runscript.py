@@ -133,9 +133,7 @@ class ScriptBinding:
             file in a temporary file in a temporary folder 
             This file will be overwritten each time the user runs the code.
             """
-            with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-                f.write(self.editwin.text.get('1.0', 'end'))
-                filename = f.name
+            filename = self.write_to_temp_file()
             #filename = os.path.join(idleConf.GetUserCfgDir(), 'temp.py')
         code = self.checksyntax(filename)
         if not code:
@@ -177,6 +175,12 @@ class ScriptBinding:
         interp.runcode(code)
         return 'break'
 
+    # write to temp-file function (refactor for easier testing)
+    def write_to_temp_file(self):
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+                f.write(self.editwin.text.get('1.0', 'end'))
+                return f.name
+
     def getfilename(self):
         """Get source filename.  If not saved, offer to save (or create) file
 
@@ -198,11 +202,19 @@ class ScriptBinding:
                 confirm = self.ask_save_dialog()
                 self.editwin.text.focus_set()
                 if confirm:
-                    self.editwin.io.save(None)
-                    filename = self.editwin.io.filename
+                    filename = self.user_confirm()
                 else:
-                    filename = 'write_to_temp_file'
+                    filename = self.user_cancel()
         return filename
+
+    # Refactor code so that the confirmation dialog is in separate functions
+    def user_confirm(self):
+        self.editwin.io.save(None)
+        filename = self.editwin.io.filename
+        return filename
+    
+    def user_cancel(self):
+        return 'write_to_temp_file'
 
     def ask_save_dialog(self):
         msg = "Do you want to run without saving?\n" #+ 5*' ' + "OK to Save?"
