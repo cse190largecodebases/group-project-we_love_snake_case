@@ -69,6 +69,8 @@ class Stash:
 
         self.editwin = editwin
         self.text = editwin.text
+        if editwin.io.filename == None:
+            return
         # Handles hidden stash file creation
         self.file_hash = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
         self.file_path = create_hidden_file("idlelibstash", self.file_hash + ".txt")
