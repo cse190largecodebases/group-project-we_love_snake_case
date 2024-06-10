@@ -69,6 +69,8 @@ class Stash:
 
         self.editwin = editwin
         self.text = editwin.text
+        if editwin.io.filename == None:
+            return
         # Handles hidden stash file creation
         self.file_hash = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
         self.file_path = create_hidden_file("idlelibstash", self.file_hash + ".txt")
@@ -86,7 +88,7 @@ class Stash:
         self.text.delete('1.0', 'end')
         self.text.insert('1.0', self.original_content)
         print('Restored original code')
-    
+
     def get_region(self):
         text = self.text
         first, last = self.editwin.get_selection_indices()
@@ -99,7 +101,7 @@ class Stash:
         chars = text.get(head, tail)
         lines = chars.split("\n")
         return head, tail, chars, lines
-    
+
     def previous_stash(self):
         if not self.stashes or self.index <= 0:
             print('No previous stash')
@@ -130,7 +132,7 @@ class Stash:
         for line in recent_stash:
             self.text.insert(f'{counter}', line + '\n')
             counter += 1.0
-    
+
     def convert_from_string(self, stash):
         print('actual stash',stash)
         if isinstance(stash, str):
