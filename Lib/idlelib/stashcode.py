@@ -120,7 +120,7 @@ class Stash:
         if not self.stashes:
             print('No stashes to apply')
             return
-        self.update_editor_window(self.stashes[self.index])
+        self.update_editor_window(self.stashes[-1])
         print('Applied stash')
 
     def update_editor_window(self, stash):
@@ -139,6 +139,8 @@ class Stash:
             return stash
 
     def stash_code(self):
+        self.index += 1
+        print('self.index:', self.index)
         head, tail, chars, lines = self.get_region()
         if self.stashes and self.stashes[-1] == lines:
             print('No changes to stash')
