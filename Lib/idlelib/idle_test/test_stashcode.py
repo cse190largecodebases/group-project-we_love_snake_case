@@ -66,7 +66,7 @@ class StashCodeTest(unittest.TestCase):
         stash.index = 0
         stash.stash_code()
         stash.next_stash()
-        self.assertEqual(stash.index, 2)
+        self.assertEqual(stash.index, len(stash.stashes) - 1)
 
     def test_previous_stash(self):
         ew = self.editor
@@ -74,7 +74,7 @@ class StashCodeTest(unittest.TestCase):
         stash.index = 0
         stash.stash_code()
         stash.previous_stash()
-        self.assertEqual(stash.index, 0)
+        self.assertEqual(stash.index, len(stash.stashes) - 2)
 
     def test_restore_original(self):
         ew = self.editor
