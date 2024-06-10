@@ -112,7 +112,7 @@ class Stash:
         if not self.stashes or self.index >= len(self.stashes) - 1:
             print('No next stash')
             return
-        self.index += 1  # Move to the previous stash
+        self.index += 1  # Move to the next stash
         next_stash = self.stashes[self.index]
         self.update_editor_window(next_stash)
 
