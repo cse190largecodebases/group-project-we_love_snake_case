@@ -1,32 +1,44 @@
 """stash - local version control for IDLE"""
-import collections
-import difflib
 import hashlib
 import os
 import ast
-
 from tkinter import messagebox
 
 def create_hidden_file(folder_name, file_name):
+    """
+    Create a hidden file in the specified folder.
+
+    Parameters:
+    folder_name (str): Name of the folder to create.
+    file_name (str): Name of the file to create.
+
+    Returns:
+    str: Path to the created file.
+    """
     hidden_folder = '.' + folder_name
     file_path = os.path.join(hidden_folder, file_name)
-
     # Create the hidden folder if it doesn't exist
     os.makedirs(hidden_folder, exist_ok=True)
-
     # Check if the file exists in the hidden folder
     if not os.path.isfile(file_path):
         # Create the file if it doesn't exist
         with open(file_path, 'w') as f:
             pass
-
         print(f"Created file: {file_path}")
     else:
         print(f"File already exists: {file_path}")
-
     return file_path
 
 def read_file_contents(file_path):
+    """
+    Read the contents of a file.
+
+    Parameters:
+    file_path (str): Path to the file to read.
+
+    Returns:
+    str: Contents of the file, or None if the file doesn't exist.
+    """
     try:
         with open(file_path, 'r') as file:
             contents = file.read()
@@ -36,6 +48,13 @@ def read_file_contents(file_path):
         return None
 
 def write_to_file(file_path, content):
+    """
+    Write content to a file.
+
+    Parameters:
+    file_path (str): Path to the file to write.
+    content (str): Content to write to the file.
+    """
     try:
         with open(file_path, 'w') as file:
             file.write(content)
@@ -44,6 +63,15 @@ def write_to_file(file_path, content):
         print(f"Error writing to file: {e}")
 
 def read_stash_from_file(file_path):
+    """
+    Read stashes from a file.
+
+    Parameters:
+    file_path (str): Path to the file to read.
+
+    Returns:
+    list: List of stashes read from the file.
+    """
     contents = read_file_contents(file_path)
     if not contents:
         return []
@@ -51,27 +79,31 @@ def read_stash_from_file(file_path):
     return stashes
 
 def write_stash_to_file(file_path, stashes):
-    print(stashes)
-    print(type(stashes))
-    content = '😀'.join(map(str,stashes))
+    """
+    Write stashes to a file.
+
+    Parameters:
+    file_path (str): Path to the file to write.
+    stashes (list): List of stashes to write to the file.
+    """
+    content = '😀'.join(map(str, stashes))
     write_to_file(file_path, content)
 
 class Stash:
-    "Display code outline in new or existing Pyshell."
+    """
+    Class for managing stashes of code in an IDLE editor window.
+    """
 
     def __init__(self, editwin):
-        """File for stashing code
-        editwin is the Editor window for the context block.
-        self.text is the editor window text widget.
-        self.get_region --> gets the region of the highlighted code, or gets the entire code if nothing is highlgighted; inspired from get_region in format.py
-        self.previous_stash --> presents the previously saved stash
-        self.next_stash --> presents the next saved stash
-        self.apply_stash --> applies the stash to the current code region
         """
+        Initialize the Stash object.
 
+        Parameters:
+        editwin: The editor window for the context block.
+        """
         self.editwin = editwin
         self.text = editwin.text
-        if editwin.io.filename == None:
+        if editwin.io.filename is None:
             return
         # Handles hidden stash file creation
         self.file_hash = hashlib.sha256(editwin.io.filename.encode()).hexdigest()
@@ -82,16 +114,22 @@ class Stash:
             self.index = len(self.stashes) - 1  # Initialize index to the last stash
         else:
             self.index = 0
-        contents = read_file_contents(self.file_path)
-        if not contents:
-            print(f"File contents: {contents}")
 
     def restore_original(self):
+        """
+        Restore the original code in the editor window.
+        """
         self.text.delete('1.0', 'end')
         self.text.insert('1.0', self.original_content)
         print('Restored original code')
 
     def get_region(self):
+        """
+        Get the region of the highlighted code, or the entire code if nothing is highlighted.
+
+        Returns:
+        tuple: A tuple containing the start index, end index, code characters, and lines of code.
+        """
         text = self.text
         first, last = self.editwin.get_selection_indices()
         if first and last:
@@ -105,6 +143,9 @@ class Stash:
         return head, tail, chars, lines
 
     def previous_stash(self):
+        """
+        Present the previous saved stash.
+        """
         if not self.stashes or self.index <= 0:
             print('No previous stash')
             messagebox.showinfo("Message", "No previous stash")
@@ -114,6 +155,9 @@ class Stash:
         self.update_editor_window(previous_stash)
 
     def next_stash(self):
+        """
+        Present the next saved stash.
+        """
         if not self.stashes or self.index >= len(self.stashes) - 1:
             print('No next stash')
             messagebox.showinfo("Message", "No next stash")
@@ -123,6 +167,9 @@ class Stash:
         self.update_editor_window(next_stash)
 
     def apply_stash(self):
+        """
+        Apply the latest stash to the current code region.
+        """
         if not self.stashes:
             print('No stashes to apply')
             messagebox.showinfo("Message", "No stashes to apply")
@@ -131,6 +178,12 @@ class Stash:
         print('Applied stash')
 
     def update_editor_window(self, stash):
+        """
+        Update the editor window with the provided stash.
+
+        Parameters:
+        stash (str): The stash to apply to the editor window.
+        """
         recent_stash = self.convert_from_string(stash)
         self.text.delete('1.0', 'end')
         counter = 1.0
@@ -139,14 +192,24 @@ class Stash:
             counter += 1.0
 
     def convert_from_string(self, stash):
-        print('actual stash',stash)
+        """
+        Convert a stash from a string to its original format.
+
+        Parameters:
+        stash (str): The stash in string format.
+
+        Returns:
+        list: The stash in its original format.
+        """
         if isinstance(stash, str):
             return ast.literal_eval(stash)
         else:
             return stash
 
     def stash_code(self):
-        print('self.index:', self.index)
+        """
+        Stash the current code region.
+        """
         head, tail, chars, lines = self.get_region()
         if self.stashes and self.stashes[-1] == lines:
             print('No changes to stash')
@@ -155,10 +218,6 @@ class Stash:
         self.stashes.append(lines)
         write_stash_to_file(self.file_path, self.stashes)
         self.index = len(self.stashes) - 1
-
-        # print('self.stashes:', self.stashes)
-        # print('self.index', self.index, '\n', 'self.stashes length', len(self.stashes))
-
 
 if __name__ == "__main__":
     from unittest import main
