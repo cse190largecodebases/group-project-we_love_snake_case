@@ -36,7 +36,7 @@ jobs:
     outputs:
       run_tests: ${{ steps.check.outputs.run_tests }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check for source changes
         id: check
         run: |
@@ -66,7 +66,7 @@ jobs:
     needs: check_source
     if: needs.check_source.outputs.run_tests == 'true'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
       - name: Install Dependencies
         run: sudo ./.github/workflows/posix-deps-apt.sh
@@ -123,7 +123,7 @@ jobs:
     env:
        IncludeUwp: 'true'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build CPython
       run: .\PCbuild\build.bat -e -d -p Win32
       timeout-minutes: 30
@@ -140,7 +140,7 @@ jobs:
     env:
        IncludeUwp: 'true'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Register MSVC problem matcher
       run: echo "::add-matcher::.github/problem-matchers/msvc.json"
     - name: Build CPython
@@ -162,7 +162,7 @@ jobs:
       HOMEBREW_NO_INSTALL_CLEANUP: 1
       PYTHONSTRICTEXTENSIONBUILD: 1
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Homebrew dependencies
       run: brew install pkg-config openssl@1.1 xz gdbm tcl-tk
     - name: Configure CPython
@@ -190,7 +190,7 @@ jobs:
       OPENSSL_VER: 1.1.1t
       PYTHONSTRICTEXTENSIONBUILD: 1
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Register gcc problem matcher
       run: echo "::add-matcher::.github/problem-matchers/gcc.json"
     - name: Install Dependencies
@@ -253,7 +253,7 @@ jobs:
       OPENSSL_DIR: ${{ github.workspace }}/multissl/openssl/${{ matrix.openssl_ver }}
       LD_LIBRARY_PATH: ${{ github.workspace }}/multissl/openssl/${{ matrix.openssl_ver }}/lib
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Register gcc problem matcher
       run: echo "::add-matcher::.github/problem-matchers/gcc.json"
     - name: Install Dependencies
@@ -297,7 +297,7 @@ jobs:
       PYTHONSTRICTEXTENSIONBUILD: 1
       ASAN_OPTIONS: detect_leaks=0:allocator_may_return_null=1:handle_segv=0
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Register gcc problem matcher
       run: echo "::add-matcher::.github/problem-matchers/gcc.json"
     - name: Install Dependencies
